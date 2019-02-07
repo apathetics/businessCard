@@ -1,7 +1,12 @@
 package com.tracy.businessCard;
 
 import com.google.common.base.CharMatcher;
+import edu.stanford.nlp.simple.Sentence;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.HashSet;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,45 +18,74 @@ public class BusinessCardParser {
         String number = parseNumber(document);
         String email = parseEmail(document);
 
-        ContactInfo parsedContactInfo = new ContactInfo(name, number, email);
-
-        return parsedContactInfo;
+        return new ContactInfo(name, number, email);
     }
 
     // Personally, I would make these auxiliary methods private and just write a single test for getContactInfo().
     // For the sake of demonstrating fine-grained testing though, I've made them public.
 
-    // Named Entity Problem - NLP
+    // Named Entity Problem - NLP hard problem
     // brute-force: use dictionary look-up for most common names
-    // Open source NER solutions - is this allowed?
+    // open source NER solutions - is this allowed?
+    // using Stanford CoreNLP - it thinks analytic developer is a PERSON...could train the classifier. Out of scope for this challenge.
     public static String parseName(String document) {
-        return "a";
+
+        HashSet<String> nameSet = new HashSet<String>();
+
+        // Read in most common name list.
+        try {
+            Scanner file = new Scanner(new File(BusinessCardParser.class.getClassLoader().getResource("names.txt").getFile()));
+            while(file.hasNext()) {
+                nameSet.add(file.next());
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("Invalid name file path.");
+        }
+
+        String documentLines[] = document.split("\\r?\\n");
+
+        // Brute force - List Lookup Method
+        // If line is 2 or 3 words long (length of a name), then see if it matches dictionary.
+        // Optimize this somehow - many things on business card are 2-3 words long. HashSet is O(1) search and add though.
+        for(String line : documentLines) {
+            String[] lineSplit = line.split("\\s+");
+
+            if (lineSplit.length == 2) {
+                if(nameSet.contains(lineSplit[0]) || nameSet.contains(lineSplit[1])) {
+                    return line;
+                }
+            }
+
+            if (lineSplit.length == 3) {
+                if(nameSet.contains(lineSplit[0]) || nameSet.contains(lineSplit[1]) || nameSet.contains(lineSplit[2])) {
+                    return line;
+                }
+            }
+        }
+
+        // If all else fails, use Stanford CoreNLP NER detection to identify person.
+        // Not always accurate and very slow (15 seconds for a name). Use as a last resort for accuracy.
+        for(String line: documentLines) {
+            Sentence sentence = new Sentence(line);
+            if(sentence.nerTags().contains("PERSON")) {
+                return line;
+            }
+        }
+
+        return "NAME_NOT_FOUND";
     }
 
     // use regex to find 3 + 3 + 4 or 1 + 3 + 3 + 4 numbers
     // can be confused with fax - if "fax" in line, then skip.
     // there are so many different phone formats internationally - feasible with regex? Better option?
-    // assuming american numbers only and that people wouldn't put over 10+ digits on one line unless it was a phone
+    // cheeky brute-force: assume american numbers only and that 10+ digits would never occur on one line unless it was a phone
     public static String parseNumber(String document) {
-
-        // This pre-compiled regex pattern does add more lines to the code vs a string.matches("regex").
-        // However, it is significantly faster - meaning it is more optimized and will scale better.
-//        String tenDigitRegex = "\\d{10}";
-//        String dashesDotsRegex = "\\d{3}[-\\.\\s]\\d{3}[-\\.\\s]\\d{4}";
-//        String areaBracesRegex = "\\(\\d{3}\\)-\\d{3}-\\d{4}";
-//
-//        Pattern tenDigitsPattern = Pattern.compile(tenDigitRegex);
-//        Pattern dashesDotsPattern = Pattern.compile(dashesDotsRegex);
-//        Pattern areaBracesPattern = Pattern.compile(areaBracesRegex);
 
         String documentLines[] = document.split("\\r?\\n");
 
         for(String line: documentLines) {
 
-//            Matcher tenDigitMatcher = tenDigitsPattern.matcher(line);
-//            Matcher dashesDotsMatcher = dashesDotsPattern.matcher(line);
-//            Matcher areaBracesMatcher = areaBracesPattern.matcher(line);
-
+            // Add blacklist for anything that might contain 10+ numbers on a business card.
             if(line.toLowerCase().contains("fax")) {
                 continue;
             }
@@ -61,16 +95,6 @@ public class BusinessCardParser {
             if (extractedNumbers.length() == 10 || extractedNumbers.length() == 11) {
                 return extractedNumbers;
             }
-//            else if (tenDigitMatcher.matches()) {
-//                return CharMatcher.inRange('0', '9').retainFrom(line);
-//            }
-//            else if (dashesDotsMatcher.matches()) {
-//                return CharMatcher.inRange('0', '9').retainFrom(line);
-//            }
-//            else if (areaBracesMatcher.matches()) {
-//                return CharMatcher.inRange('0', '9').retainFrom(line);
-//            }
-
         }
         return "PHONE_NOT_FOUND";
     }
@@ -91,6 +115,7 @@ public class BusinessCardParser {
         String documentLines[] = document.split("\\r?\\n");
 
         for(String email: documentLines) {
+
             Matcher matcher = pattern.matcher(email);
 
             // successful match found - exit

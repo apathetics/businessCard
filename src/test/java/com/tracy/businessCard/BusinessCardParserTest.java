@@ -33,7 +33,9 @@ public class BusinessCardParserTest {
 
     @Test
     public void testParseName() throws Exception {
-        Assert.assertTrue(1 == 1);
+        Assert.assertEquals("Mike Smith", BusinessCardParser.parseName(testCase1));
+        Assert.assertEquals("Lisa Haung", BusinessCardParser.parseName(testCase2));
+        Assert.assertEquals("Arthur Wilson", BusinessCardParser.parseName(testCase3));
     }
 
     @Test

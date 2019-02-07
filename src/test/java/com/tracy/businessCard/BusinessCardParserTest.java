@@ -1,8 +1,6 @@
 package com.tracy.businessCard;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 public class BusinessCardParserTest {
@@ -40,7 +38,9 @@ public class BusinessCardParserTest {
 
     @Test
     public void testParseNumber() throws Exception {
-        Assert.assertTrue(1 == 1);
+        Assert.assertEquals("4105551234", BusinessCardParser.parseNumber(testCase1));
+        Assert.assertEquals("4105551234", BusinessCardParser.parseNumber(testCase2));
+        Assert.assertEquals("17035551259", BusinessCardParser.parseNumber(testCase3));
     }
 
     @Test

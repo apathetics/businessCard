@@ -42,9 +42,11 @@ An example of test case #3 given as an input to the command line interface.
 1. Classifier training for the Stanford CoreNLP to reliably use for name parse solution when name list fails.
 2. Expand phone number solution to include international numbers and non-US formats using regex or framework.
 3. Write more test cases for edge cases and exceptions that may not currently be dealt with.
+4. Add a GUI for batch processing and user friendliness.
 
 ## Feedback
-All in all, a very fun project to do. There's always more to expand on, 
+All in all, a very fun project to do. If I had more time, I would definitely play around with training the Stanford CoreNLP's
+NER (named entity recognition) classifier.  
 
 I am always happy to receive feedback and suggestions on how to improve as an engineer, so please don't hesitate to
 send me an email or leave an issue.

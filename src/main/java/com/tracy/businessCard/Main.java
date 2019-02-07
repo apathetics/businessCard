@@ -18,6 +18,8 @@ public class Main {
 
         System.out.println("Please enter your business card text. \n");
 
+        // Reading it in and building the document string like this so that in the future, implementing batch processing
+        // of business cards will be easy as well as any necessary formatting editing to the document for optimizations.
         try {
             while ((line = input.readLine()) != null && line.length() != 0) {
                 documentBuilder.append(line);

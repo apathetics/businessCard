@@ -1,7 +1,6 @@
 package com.tracy.businessCard;
 
 import com.google.common.base.CharMatcher;
-import edu.stanford.nlp.simple.Sentence;
 
 import java.io.File;
 import java.io.FileNotFoundException;

@@ -22,14 +22,11 @@ public class ContactInfo {
         return name;
     }
 
-
     public String getPhoneNumber() {
         return phoneNumber;
     }
 
-
     public String getEmailAddress() {
         return emailAddress;
     }
-
 }

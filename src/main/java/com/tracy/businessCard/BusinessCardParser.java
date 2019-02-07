@@ -33,6 +33,10 @@ public class BusinessCardParser {
         HashSet<String> nameSet = new HashSet<String>();
 
         // Read in most common name list.
+        // We can always go back and expand on this list, it is only 3,500 most common US-English names right now.
+        // HashSet is O(1) search and add, so it performs well.
+        // If scaling, look into using InputBuffer and delimiting the bytes ourselves instead of storing String objects.
+
         try {
             Scanner file = new Scanner(new File(BusinessCardParser.class.getClassLoader().getResource("names.txt").getFile()));
             while(file.hasNext()) {
@@ -46,7 +50,7 @@ public class BusinessCardParser {
 
         // Brute force - List Lookup Method
         // If line is 2 or 3 words long (length of a name), then see if it matches dictionary.
-        // Optimize this somehow - many things on business card are 2-3 words long. HashSet is O(1) search and add though.
+        // Optimize this somehow? - many things on business card are 2-3 words long. HashSet is O(1) search and add.
         for(String line : documentLines) {
             String[] lineSplit = line.split("\\s+");
 
@@ -65,12 +69,15 @@ public class BusinessCardParser {
 
         // If all else fails, use Stanford CoreNLP NER detection to identify person.
         // Not always accurate and very slow (15 seconds for a name). Use as a last resort for accuracy.
-        for(String line: documentLines) {
-            Sentence sentence = new Sentence(line);
-            if(sentence.nerTags().contains("PERSON")) {
-                return line;
+        // VERY often identifies titles/positions/creatures as "PERSON", so I'm commenting it out until it can be trained.
+        /**
+            for(String line: documentLines) {
+                Sentence sentence = new Sentence(line);
+                if(sentence.nerTags().contains("PERSON")) {
+                    return line;
+                }
             }
-        }
+         **/
 
         return "NAME_NOT_FOUND";
     }
